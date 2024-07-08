@@ -43,36 +43,72 @@ class _SessionListScreenState extends State<SessionListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sessions'),
+        title: Text(
+          'Sessions',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: _logout,
+            color: Colors.white,
           ),
         ],
+        backgroundColor: Colors.deepPurple,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: ValueListenableBuilder(
         valueListenable: sessionBox.listenable(),
         builder: (context, Box<Session> box, _) {
           if (box.values.isEmpty) {
-            return Center(child: Text('No sessions available'));
+            return Center(
+              child: Text(
+                'No sessions available',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
           }
 
           return ListView.builder(
             itemCount: box.length,
             itemBuilder: (context, index) {
               final session = box.getAt(index);
-              return ListTile(
-                title: Text(session!.name),
-                onTap: () => _openChat(session),
+              return Card(
+                elevation: 3,
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: ListTile(
+                  title: Text(
+                    session!.name,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  trailing: Icon(Icons.chat, color: Colors.deepPurple),
+                  onTap: () => _openChat(session),
+                ),
               );
             },
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _createNewSession,
-        child: Icon(Icons.add),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton.icon(
+              onPressed: _createNewSession,
+              icon: Icon(Icons.add),
+              label: Text('Start New Conversation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.deepPurple,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

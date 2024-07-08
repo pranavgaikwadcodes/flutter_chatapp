@@ -58,15 +58,33 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat: ${_session.name}')),
+      appBar: AppBar(
+        title: Text('Chat: ${_session.name}'),
+        backgroundColor: Colors.deepPurple,
+        titleTextStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white),
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               itemCount: _session.messages.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_session.messages[index]),
+                bool isUserMessage = _session.messages[index].startsWith('User:');
+                return Container(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: isUserMessage ? Colors.deepPurple.shade100 : Colors.deepPurple.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Align(
+                    alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Text(
+                      _session.messages[index],
+                      style: TextStyle(color: isUserMessage ? Colors.black : Colors.white),
+                    ),
+                  ),
                 );
               },
             ),
@@ -78,12 +96,23 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(hintText: 'Type a message'),
+                    decoration: InputDecoration(
+                      hintText: 'Type a message',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    ),
                   ),
                 ),
+                SizedBox(width: 10),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: Icon(Icons.send, color: Colors.deepPurple),
                   onPressed: _sendMessage,
+                  color: Colors.deepPurple,
                 ),
               ],
             ),
