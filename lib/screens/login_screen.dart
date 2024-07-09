@@ -44,14 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color:Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.purpleAccent,
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.purpleAccent],
+            colors: [Colors.purpleAccent, Colors.deepPurple],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),

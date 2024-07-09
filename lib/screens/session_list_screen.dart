@@ -1,44 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chat_application/models/session.dart';
 import 'package:flutter_chat_application/screens/chat_screen.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_chat_application/screens/session_bloc.dart';
+import 'package:flutter_chat_application/screens/session_event.dart';
+import 'package:flutter_chat_application/screens/session_state.dart';
 
-class SessionListScreen extends StatefulWidget {
-  @override
-  _SessionListScreenState createState() => _SessionListScreenState();
-}
-
-class _SessionListScreenState extends State<SessionListScreen> {
-  late Box<Session> sessionBox;
-
-  @override
-  void initState() {
-    super.initState();
-    sessionBox = Hive.box<Session>('sessions');
-  }
-
-  void _createNewSession() {
-    final sessionNumber = sessionBox.length + 1;
-    final newSession = Session(id: UniqueKey().toString(), name: 'Session $sessionNumber');
-    sessionBox.add(newSession).then((_) {
-      _openChat(newSession);
-    });
-  }
-
-  void _openChat(Session session) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChatScreen(session: session),
-      ),
-    );
-  }
-
-  void _logout() {
-    Navigator.pushReplacementNamed(context, '/login');
-  }
-
+class SessionListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,43 +18,59 @@ class _SessionListScreenState extends State<SessionListScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: _logout,
+            onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
             color: Colors.white,
           ),
         ],
         backgroundColor: Colors.deepPurple,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: sessionBox.listenable(),
-        builder: (context, Box<Session> box, _) {
-          if (box.values.isEmpty) {
-            return Center(
-              child: Text(
-                'No sessions available',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
+      body: BlocBuilder<SessionBloc, SessionState>(
+        builder: (context, state) {
+          if (state is SessionsLoaded) {
+            if (state.sessions.isEmpty) {
+              return Center(
+                child: Text(
+                  'No sessions available',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              );
+            }
+
+            return ListView.builder(
+              itemCount: state.sessions.length,
+              itemBuilder: (context, index) {
+                final session = state.sessions[index];
+                return Card(
+                  elevation: 3,
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    title: Text(
+                      session.name,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => context.read<SessionBloc>().add(DeleteSession(index)),
+                        ),
+                        SizedBox(width: 10),
+                        IconButton(
+                          icon: Icon(Icons.chat),
+                          onPressed: () => Navigator.pushNamed(context, '/chat', arguments: session),
+                        ),
+                      ],
+                    ),
+                    onTap: () => Navigator.pushNamed(context, '/chat', arguments: session),
+                  ),
+                );
+              },
             );
           }
 
-          return ListView.builder(
-            itemCount: box.length,
-            itemBuilder: (context, index) {
-              final session = box.getAt(index);
-              return Card(
-                elevation: 3,
-                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  title: Text(
-                    session!.name,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
-                  trailing: Icon(Icons.chat, color: Colors.deepPurple),
-                  onTap: () => _openChat(session),
-                ),
-              );
-            },
-          );
+          return Center(child: CircularProgressIndicator());
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -96,11 +80,15 @@ class _SessionListScreenState extends State<SessionListScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ElevatedButton.icon(
-              onPressed: _createNewSession,
+              onPressed: () => context.read<SessionBloc>().add(CreateSession()),
               icon: Icon(Icons.add),
-              label: Text('Start New Conversation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
+              label: Text(
+                'Start New Conversation',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.deepPurple,
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),

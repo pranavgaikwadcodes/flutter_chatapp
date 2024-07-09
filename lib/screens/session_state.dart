@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_chat_application/models/session.dart';
 
-// Session States
 abstract class SessionState extends Equatable {
   @override
   List<Object?> get props => [];

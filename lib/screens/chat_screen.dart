@@ -106,6 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     ),
+                    onSubmitted: (value) => _sendMessage(), // Send message on "Enter" key press
                   ),
                 ),
                 SizedBox(width: 10),
